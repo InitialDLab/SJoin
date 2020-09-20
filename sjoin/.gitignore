@@ -1,0 +1,10 @@
+autom4te.cache
+config.status
+config.log
+debug/
+release/
+debug.o2/
+stamp-h
+config.h
+deps/
+Makefile.in.old

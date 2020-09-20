@@ -1,0 +1,248 @@
+CXX=@CXX@
+LD=@CXX@
+top_srcdir=@top_srcdir@
+srcdir=$(top_srcdir)/src
+testdir=$(top_srcdir)/test
+includedir=$(top_srcdir)/include
+#builddir=@builddir@ # should always be .
+srcbin=./src.obj
+testbin=./test.obj
+CXXFLAGS=@CXXFLAGS@ -Wall -Wno-format-truncation -Wno-comment
+CPPFLAGS=@CPPFLAGS@ -I"$(includedir)" -I. -I"$(top_srcdir)"
+LDFLAGS=@LDFLAGS@
+LIBS=@LIBS@ -pthread
+CONFIGS=config.h $(top_srcdir)/config.top $(top_srcdir)/config.bot
+
+$(shell test -d $(srcbin) || mkdir -p $(srcbin))
+$(shell test -d $(testbin) || mkdir -p $(testbin))
+
+
+COMPILE=$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) -c
+LINK=$(LD) $(CXXFLAGS) $(LDFLAGS) $(LIBS)
+
+.PHONY: all clean depend
+
+OBJS=$(srcbin)/debug.o $(srcbin)/driver.o $(srcbin)/dtypes.o $(srcbin)/filter.o $(srcbin)/generic_mempool_memmgr.o $(srcbin)/join.o $(srcbin)/linear_road.o $(srcbin)/linear_road_schema.o $(srcbin)/lroad_queries.o $(srcbin)/memmgr.o $(srcbin)/mempool_memmgr.o $(srcbin)/predicate.o $(srcbin)/query.o $(srcbin)/record.o $(srcbin)/schema.o $(srcbin)/sinljoin.o $(srcbin)/sjoin.o $(srcbin)/stable.o $(srcbin)/tpc_ds_queries.o $(srcbin)/tpc_ds_schema.o $(srcbin)/utils.o $(srcbin)/walker.o 
+
+all: driver
+
+# targets
+
+driver: $(OBJS)
+	$(LINK) -o $@ $^
+
+lroad_input_converter: $(srcbin)/lroad_input_converter.o \
+	$(srcbin)/schema.o $(srcbin)/dtypes.o $(srcbin)/debug.o \
+	$(srcbin)/memmgr.o $(srcbin)/record.o $(srcbin)/linear_road_schema.o \
+	$(srcbin)/utils.o
+	$(LINK) -o $@ $^
+
+#edgar_input_converter: $(srcbin)/edgar_input_converter.o \
+#	$(srcbin)/schema.o $(srcbin)/dtypes.o $(srcbin)/debug.o \
+#	$(srcbin)/memmgr.o $(srcbin)/record.o $(srcbin)/utils.o
+#	$(LINK) -o $@ $^
+
+# objs
+
+$(srcbin)/debug.o: $(srcdir)/debug.cpp $(includedir)/debug.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/driver.o: $(srcdir)/driver.cpp $(CONFIGS)   \
+ $(includedir)/dtypes.h $(includedir)/basictypes.h $(includedir)/debug.h \
+ $(includedir)/datum.h $(includedir)/memmgr.h $(includedir)/std_containers.h \
+ $(includedir)/lroad_queries.h $(includedir)/query.h $(includedir)/schema.h \
+ $(includedir)/record.h $(includedir)/join.h $(includedir)/predicate.h \
+ $(includedir)/stable.h $(includedir)/sjoin.h $(includedir)/vertex.h \
+ $(includedir)/avl.h $(includedir)/address.h $(includedir)/walker.h \
+ $(includedir)/sinljoin.h $(includedir)/filter.h $(includedir)/tpc_ds_queries.h \
+ $(includedir)/utils.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/dtypes.o: $(srcdir)/dtypes.cpp $(includedir)/dtypes.h $(includedir)/basictypes.h \
+ $(CONFIGS)   $(includedir)/debug.h \
+ $(includedir)/datum.h $(includedir)/memmgr.h $(includedir)/std_containers.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/filter.o: $(srcdir)/filter.cpp $(includedir)/filter.h $(includedir)/basictypes.h \
+ $(CONFIGS)   $(includedir)/debug.h \
+ $(includedir)/dtypes.h $(includedir)/datum.h $(includedir)/record.h \
+ $(includedir)/schema.h $(includedir)/memmgr.h $(includedir)/std_containers.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/generic_mempool_memmgr.o: $(srcdir)/generic_mempool_memmgr.cpp \
+ $(includedir)/memmgr.h $(includedir)/basictypes.h $(CONFIGS)  \
+  $(includedir)/debug.h $(includedir)/std_containers.h \
+ $(includedir)/utils.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/join.o: $(srcdir)/join.cpp $(includedir)/join.h $(CONFIGS)  \
+  $(includedir)/basictypes.h $(includedir)/debug.h \
+ $(includedir)/predicate.h $(includedir)/dtypes.h $(includedir)/datum.h \
+ $(includedir)/schema.h $(includedir)/memmgr.h $(includedir)/std_containers.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/linear_road.o: $(srcdir)/linear_road.cpp $(CONFIGS)  \
+  $(includedir)/linear_road.h $(includedir)/schema.h \
+ $(includedir)/dtypes.h $(includedir)/basictypes.h $(includedir)/debug.h \
+ $(includedir)/datum.h $(includedir)/memmgr.h $(includedir)/std_containers.h \
+ $(includedir)/linear_road_schema.h $(includedir)/stable.h $(includedir)/record.h \
+ $(includedir)/join.h $(includedir)/predicate.h $(includedir)/sjoin.h \
+ $(includedir)/vertex.h $(includedir)/avl.h $(includedir)/address.h \
+ $(includedir)/walker.h $(includedir)/sinljoin.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/linear_road_schema.o: $(srcdir)/linear_road_schema.cpp $(CONFIGS) \
+   $(includedir)/linear_road.h $(includedir)/schema.h \
+ $(includedir)/dtypes.h $(includedir)/basictypes.h $(includedir)/debug.h \
+ $(includedir)/datum.h $(includedir)/memmgr.h $(includedir)/std_containers.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/lroad_input_converter.o: $(srcdir)/lroad_input_converter.cpp $(CONFIGS) \
+   $(includedir)/schema.h $(includedir)/dtypes.h \
+ $(includedir)/basictypes.h $(includedir)/debug.h $(includedir)/datum.h \
+ $(includedir)/memmgr.h $(includedir)/std_containers.h $(includedir)/record.h \
+ $(includedir)/linear_road.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/lroad_queries.o: $(srcdir)/lroad_queries.cpp $(CONFIGS)  \
+  $(includedir)/lroad_queries.h $(includedir)/query.h \
+ $(includedir)/basictypes.h $(includedir)/debug.h $(includedir)/dtypes.h \
+ $(includedir)/datum.h $(includedir)/schema.h $(includedir)/memmgr.h \
+ $(includedir)/std_containers.h $(includedir)/record.h $(includedir)/join.h \
+ $(includedir)/predicate.h $(includedir)/stable.h $(includedir)/sjoin.h \
+ $(includedir)/vertex.h $(includedir)/avl.h $(includedir)/address.h \
+ $(includedir)/walker.h $(includedir)/sinljoin.h $(includedir)/filter.h \
+ $(includedir)/linear_road_schema.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/memmgr.o: $(srcdir)/memmgr.cpp $(includedir)/memmgr.h $(includedir)/basictypes.h \
+ $(CONFIGS)   $(includedir)/debug.h \
+ $(includedir)/std_containers.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/mempool_memmgr.o: $(srcdir)/mempool_memmgr.cpp $(includedir)/memmgr.h \
+ $(includedir)/basictypes.h $(CONFIGS)   \
+ $(includedir)/debug.h $(includedir)/std_containers.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/predicate.o: $(srcdir)/predicate.cpp $(includedir)/predicate.h \
+ $(includedir)/basictypes.h $(CONFIGS)   \
+ $(includedir)/debug.h $(includedir)/dtypes.h $(includedir)/datum.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/query.o: $(srcdir)/query.cpp $(includedir)/query.h $(CONFIGS)  \
+  $(includedir)/basictypes.h $(includedir)/debug.h \
+ $(includedir)/dtypes.h $(includedir)/datum.h $(includedir)/schema.h \
+ $(includedir)/memmgr.h $(includedir)/std_containers.h $(includedir)/record.h \
+ $(includedir)/join.h $(includedir)/predicate.h $(includedir)/stable.h \
+ $(includedir)/sjoin.h $(includedir)/vertex.h $(includedir)/avl.h \
+ $(includedir)/address.h $(includedir)/walker.h $(includedir)/sinljoin.h \
+ $(includedir)/filter.h $(includedir)/utils.h $(includedir)/tpc_ds_schema.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/record.o: $(srcdir)/record.cpp $(includedir)/record.h $(includedir)/schema.h \
+ $(includedir)/dtypes.h $(includedir)/basictypes.h $(CONFIGS)  \
+  $(includedir)/debug.h $(includedir)/datum.h $(includedir)/memmgr.h \
+ $(includedir)/std_containers.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/schema.o: $(srcdir)/schema.cpp $(includedir)/schema.h $(includedir)/dtypes.h \
+ $(includedir)/basictypes.h $(CONFIGS)   \
+ $(includedir)/debug.h $(includedir)/datum.h $(includedir)/memmgr.h \
+ $(includedir)/std_containers.h $(includedir)/utils.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/sinljoin.o: $(srcdir)/sinljoin.cpp $(CONFIGS)   \
+ $(includedir)/sinljoin.h $(includedir)/basictypes.h $(includedir)/debug.h \
+ $(includedir)/dtypes.h $(includedir)/datum.h $(includedir)/join.h \
+ $(includedir)/predicate.h $(includedir)/schema.h $(includedir)/memmgr.h \
+ $(includedir)/std_containers.h $(includedir)/stable.h $(includedir)/record.h \
+ $(includedir)/avl.h $(includedir)/address.h $(includedir)/vertex.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/sjoin.o: $(srcdir)/sjoin.cpp $(includedir)/sjoin.h $(CONFIGS)  \
+  $(includedir)/memmgr.h $(includedir)/basictypes.h \
+ $(includedir)/debug.h $(includedir)/std_containers.h $(includedir)/join.h \
+ $(includedir)/predicate.h $(includedir)/dtypes.h $(includedir)/datum.h \
+ $(includedir)/schema.h $(includedir)/stable.h $(includedir)/record.h \
+ $(includedir)/vertex.h $(includedir)/avl.h $(includedir)/address.h \
+ $(includedir)/walker.h $(includedir)/min_heap.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/stable.o: $(srcdir)/stable.cpp $(includedir)/stable.h $(includedir)/schema.h \
+ $(includedir)/dtypes.h $(includedir)/basictypes.h $(CONFIGS)  \
+  $(includedir)/debug.h $(includedir)/datum.h $(includedir)/memmgr.h \
+ $(includedir)/std_containers.h $(includedir)/record.h $(includedir)/join.h \
+ $(includedir)/predicate.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/tpc_ds_queries.o: $(srcdir)/tpc_ds_queries.cpp $(CONFIGS)  \
+  $(includedir)/tpc_ds_queries.h $(includedir)/query.h \
+ $(includedir)/basictypes.h $(includedir)/debug.h $(includedir)/dtypes.h \
+ $(includedir)/datum.h $(includedir)/schema.h $(includedir)/memmgr.h \
+ $(includedir)/std_containers.h $(includedir)/record.h $(includedir)/join.h \
+ $(includedir)/predicate.h $(includedir)/stable.h $(includedir)/sjoin.h \
+ $(includedir)/vertex.h $(includedir)/avl.h $(includedir)/address.h \
+ $(includedir)/walker.h $(includedir)/sinljoin.h $(includedir)/filter.h \
+ $(includedir)/tpc_ds_schema.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/tpc_ds_schema.o: $(srcdir)/tpc_ds_schema.cpp $(CONFIGS)  \
+  $(includedir)/tpc_ds_schema.h $(includedir)/schema.h \
+ $(includedir)/dtypes.h $(includedir)/basictypes.h $(includedir)/debug.h \
+ $(includedir)/datum.h $(includedir)/memmgr.h $(includedir)/std_containers.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/utils.o: $(srcdir)/utils.cpp $(includedir)/utils.h $(CONFIGS)  \
+  $(includedir)/basictypes.h $(includedir)/debug.h \
+ $(includedir)/memmgr.h $(includedir)/std_containers.h
+	$(COMPILE) -o $@ $<
+
+$(srcbin)/walker.o: $(srcdir)/walker.cpp $(includedir)/walker.h $(CONFIGS)  \
+  $(includedir)/basictypes.h $(includedir)/debug.h \
+ $(includedir)/memmgr.h $(includedir)/std_containers.h
+	$(COMPILE) -o $@ $<
+
+$(testbin)/test_avl.o: $(testdir)/test_avl.cpp $(includedir)/memmgr.h \
+ $(includedir)/basictypes.h $(CONFIGS)   \
+ $(includedir)/debug.h $(includedir)/std_containers.h $(includedir)/avl.h \
+ $(includedir)/address.h $(includedir)/dtypes.h $(includedir)/datum.h
+	$(COMPILE) -o $@ $<
+
+$(testbin)/test_record.o: $(testdir)/test_record.cpp $(includedir)/record.h \
+ $(includedir)/schema.h $(includedir)/dtypes.h $(includedir)/basictypes.h $(CONFIGS) \
+   $(includedir)/debug.h $(includedir)/datum.h \
+ $(includedir)/memmgr.h $(includedir)/std_containers.h
+	$(COMPILE) -o $@ $<
+
+
+# end of objs
+# do not remove this line
+
+clean:
+	rm -f $(srcbin)/*.o $(testbin)/*.o \
+		driver lroad_input_converter edgar_input_converter
+
+depend:
+	$(top_srcdir)/gen_deps.sh $(top_srcdir) $(CXX) $(CXXFLAGS) $(CPPFLAGS)
+
+# below is for auto remaking configure and config.h
+
+$(top_srcdir)/configure: $(top_srcdir)/configure.ac $(top_srcdir)/aclocal.m4
+	cd '$(top_srcdir)' && autoconf
+
+$(top_srcdir)/config.h.in: $(top_srcdir)/stamp-h.in
+
+$(top_srcdir)/stamp-h.in: $(top_srcdir)/configure.ac $(top_srcdir)/aclocal.m4
+	cd '$(top_srcdir)' && autoheader && echo timestamp > stamp-h.in && rm -f 'config.h.in~'
+
+config.h: stamp-h
+stamp-h: $(top_srcdir)/config.h.in config.status
+	./config.status
+
+Makefile: $(top_srcdir)/Makefile.in config.status
+	./config.status
+
+config.status: $(top_srcdir)/configure $(top_srcdir)/config.h.in
+	./config.status --recheck
+

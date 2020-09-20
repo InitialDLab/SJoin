@@ -1,0 +1,5 @@
+debug:
+mkdir debug; cd debug; CXXFLAGS="-O0 -g" ../configure --enable-debug
+
+release:
+mkdir release; cd release; CPPFLAGS="-DNDEBUG" CXXFLAGS="-O2" ../configure

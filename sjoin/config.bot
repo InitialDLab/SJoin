@@ -1,0 +1,13 @@
+
+#ifndef HAVE_UNSIGNED___INT128
+#define HAVE_UNSIGNED___INT128 0
+#endif
+//TODO enable this static_assert if later we use 128-bit weights
+//static_assert(HAVE_UNSIGNED___INT128 == 1);
+
+#ifndef HAVE___INT128
+#define HAVE___INT128 0
+#endif
+//TODO enable this static_assert if later we use 128-bit weights
+//static_assert(HAVE___INT128 == 1);
+
